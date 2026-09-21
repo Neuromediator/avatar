@@ -2,21 +2,21 @@
 
 How to deploy Avatar to [fly.io](https://fly.io) as a single container, run it in production, and verify it. Nothing here is created automatically — the deployment artifacts live in `scripts/` (see below) and you deploy with `scripts/deploy.sh`.
 
-> **A reference deployment is already live** at `https://avatar-ed.fly.dev` (custom domain `https://avatar.edwarddonner.com`). The identifiers below — app `avatar-ed`, region `sjc`, domain `avatar.edwarddonner.com` — are that owner's. **To stand up your own**, pick a globally-unique Fly app name and a region near your Supabase DB, then change them in two places: `APP="..."` in `scripts/deploy.sh` and `app = "..."` / `primary_region = "..."` in `scripts/fly.toml` (keep the two app names in sync). Read every `-a avatar-ed`, `avatar-ed.fly.dev`, and `*.edwarddonner.com` below as `<your-app>` / `<your-domain>` placeholders.
+> **Identifiers for this deployment** (owner: Sergei Maslennikov): app **`avatar-sergei`** → `https://avatar-sergei.fly.dev`, region **`lhr`** (London), machine **`shared-cpu-1x` / 512 MB**, always on (~$3.30/month). The app name is set in two places that must stay in sync: `APP="avatar-sergei"` in `scripts/deploy.sh` and `app = "avatar-sergei"` in `scripts/fly.toml`. There is no custom domain yet (section 7 is optional and can wait until the owner's website is deployed).
 
 | | |
 |---|---|
-| **App** | `avatar-ed` → `https://avatar-ed.fly.dev` |
-| **Region** | `sjc` (San Jose) |
-| **Machine** | `shared-cpu-2x`, 1 GB RAM |
+| **App** | `avatar-sergei` → `https://avatar-sergei.fly.dev` |
+| **Region** | `lhr` (London) |
+| **Machine** | `shared-cpu-1x`, 512 MB RAM (~$3.30/month) |
 | **Always-on** | yes — `min_machines_running = 1` |
 | **Build** | the existing multi-stage `Dockerfile` (builds the Vite frontend, runs the FastAPI backend, copies `knowledge/`) |
 
 ### Why this shape
 
-The app is **IO-bound**: a chat reply is dominated by the OpenRouter LLM, which is streamed back **asynchronously** (SSE), so ~100 concurrent chats are ~100 mostly-idle async tasks relaying tokens — light on CPU. The likelier constraint is **memory** (Python + the Agents SDK + many live connections), so we give 1 GB. `shared-cpu-2x` (vs 1x) buys more consistent CPU on an always-on box for not much money.
+The app is **IO-bound**: a chat reply is dominated by the OpenRouter LLM, which is streamed back **asynchronously** (SSE), so concurrent chats are mostly-idle async tasks relaying tokens — light on CPU. The constraint is **memory** (Python + the Agents SDK + live connections). 512 MB is comfortable for a personal site at a few concurrent visitors, and is the cheapest size that leaves real headroom above the ~150–250 MB the process needs; 256 MB ($2.02) risks the container being killed under load. If traffic ever justifies it, `fly scale vm shared-cpu-1x --memory 1024` is a one-line change (section 8).
 
-**Region:** `us-west-2` is an AWS code (Oregon, where Supabase lives); Fly uses its own regions and has no Pacific-Northwest one, so `sjc` is the closest. Bonus: from `sjc`, the Supabase round-trips that take ~110 ms from a laptop drop to ~15–25 ms, so admin/chat DB calls are actually faster in production.
+**Region:** the Supabase project is in `eu-west-1` (Ireland). Fly has no Irish region, so `lhr` (London) is the closest and keeps the several DB round-trips per request fast. The owner sits in Tallinn, but visitor-to-app latency matters far less than app-to-DB latency here, because the reply time is dominated by the model.
 
 ## 1. Prerequisites
 
@@ -32,8 +32,8 @@ Keep the Fly config and deploy script alongside the existing `start_mac.sh` / `s
 
 ```toml
 # Fly.io config for the Avatar app. Deploy with scripts/deploy.sh.
-app = "avatar-ed"
-primary_region = "sjc"               # closest Fly region to the Supabase us-west-2 (Oregon) DB
+app = "avatar-sergei"
+primary_region = "lhr"               # closest Fly region to the Supabase eu-west-1 (Ireland) DB
 
 [env]
   PORT = "8000"                      # matches the Dockerfile's uvicorn --port
@@ -48,8 +48,8 @@ primary_region = "sjc"               # closest Fly region to the Supabase us-wes
 
   [http_service.concurrency]
     type = "connections"             # SSE holds one connection for the whole streamed reply
-    soft_limit = 90                  # (only relevant with >1 machine) start another past this
-    hard_limit = 150                 # one machine accepts up to this many — set above your peak
+    soft_limit = 40                  # (only relevant with >1 machine) start another past this
+    hard_limit = 80                  # one machine accepts up to this many — set above your peak
 
   [[http_service.checks]]
     method = "GET"
@@ -59,13 +59,13 @@ primary_region = "sjc"               # closest Fly region to the Supabase us-wes
     grace_period = "10s"
 
 [[vm]]
-  size = "shared-cpu-2x"
-  memory = "1gb"
+  size = "shared-cpu-1x"
+  memory = "512mb"
 ```
 
-Note: the `Dockerfile` and build context (`frontend/`, `backend/`, `knowledge/`) are at the **repo root**, but this config lives in `scripts/`. So `deploy.sh` runs from the repo root and passes both `--config scripts/fly.toml` and `--dockerfile Dockerfile` explicitly. For ad-hoc commands (`status`, `logs`, `secrets`), use `-a avatar-ed`; for `deploy`, use `-c scripts/fly.toml`.
+Note: the `Dockerfile` and build context (`frontend/`, `backend/`, `knowledge/`) are at the **repo root**, but this config lives in `scripts/`. So `deploy.sh` runs from the repo root and passes both `--config scripts/fly.toml` and `--dockerfile Dockerfile` explicitly. For ad-hoc commands (`status`, `logs`, `secrets`), use `-a avatar-sergei`; for `deploy`, use `-c scripts/fly.toml`.
 
-Why the concurrency block matters: if omitted, Fly's defaults are low (~20 soft / 25 hard **connections**). Because every chat reply holds a connection open while it streams, a single machine would refuse the ~26th simultaneous user. Raising `hard_limit` to 150 lets one always-on machine comfortably serve the ~100 target; `soft_limit` only does anything once more than one machine exists.
+Why the concurrency block matters: if omitted, Fly's defaults are low (~20 soft / 25 hard **connections**). Because every chat reply holds a connection open while it streams, a single machine would refuse the ~26th simultaneous user. `hard_limit = 80` is comfortably above any realistic peak for a personal site while staying within what 512 MB can hold; `soft_limit` only does anything once more than one machine exists.
 
 ### `scripts/deploy.sh`
 
@@ -75,7 +75,7 @@ Why the concurrency block matters: if omitted, Fly's defaults are low (~20 soft 
 # from the root .env, then deploy. Run from anywhere; it finds the repo root.
 set -euo pipefail
 
-APP="avatar-ed"
+APP="avatar-sergei"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_ROOT"
@@ -120,8 +120,8 @@ Set as **Fly secrets** (sensitive, pulled from `.env` by `deploy.sh`):
 
 Notes:
 - **`SESSION_SECRET`** (now in `.env`) signs the admin session cookie. Setting it explicitly means rotating `ADMIN_PASSWORD` later won't unexpectedly invalidate the session-secret derivation. Use a long random value.
-- **`MODEL`** is whatever is in `.env`. For production, set `MODEL=openai/gpt-5.4-mini` before deploying (this is what the reference deployment runs); `openai/gpt-5.4-nano` is the cheaper dev/test model and the code default. You can change it later with `fly secrets set -a <your-app> MODEL=openai/gpt-5.4-mini`.
-- Secrets can be set/changed any time: `fly secrets set -a avatar-ed KEY=value` (triggers a rolling restart). View names with `fly secrets list -a avatar-ed` (values are never shown).
+- **`MODEL`** is whatever is in `.env`, already set to `openai/gpt-5.6-luna` for production; `openai/gpt-5.4-nano` is the cheaper dev/test model and the code default. Switch either way later with `fly secrets set -a avatar-sergei MODEL=...`.
+- Secrets can be set/changed any time: `fly secrets set -a avatar-sergei KEY=value` (triggers a rolling restart). View names with `fly secrets list -a avatar-sergei` (values are never shown).
 
 ## 4. Deploy
 
@@ -131,38 +131,38 @@ First time and every subsequent deploy are the same command:
 scripts/deploy.sh
 ```
 
-It creates the app if needed, stages secrets, and deploys 1 machine to `sjc`. For redundancy / zero-downtime deploys later, run a second machine:
+It creates the app if needed, stages secrets, and deploys 1 machine to `lhr`. For redundancy / zero-downtime deploys later, run a second machine:
 
 ```bash
-fly scale count 2 -a avatar-ed     # min_machines_running=1 keeps 1 warm; soft_limit balances across both
+fly scale count 2 -a avatar-sergei     # min_machines_running=1 keeps 1 warm; soft_limit balances across both
 ```
 
 Note: the per-conversation rate limit (20 messages/minute) is held in memory **per machine**, so with more than one machine the effective limit is per machine rather than global. With a single always-on machine (the default here) it is exactly 20/min.
 
 ## 5. Testing (post-deploy smoke)
 
-Run against `https://avatar-ed.fly.dev`. Use `MODEL=openai/gpt-5.4-nano` for cheap test calls if you like, and clean up test data afterwards.
+Run against `https://avatar-sergei.fly.dev`. Use `MODEL=openai/gpt-5.4-nano` for cheap test calls if you like, and clean up test data afterwards.
 
-- [ ] `fly status -a avatar-ed` — 1 machine in `sjc`, state `started`, health check **passing**.
-- [ ] `curl -s https://avatar-ed.fly.dev/api/config` → `{"owner_name":"..."}` (200).
-- [ ] `/` loads the visitor UI (dark + light, desktop + mobile); the rings background and the LinkedIn/YouTube footer render.
-- [ ] A normal question streams a reply (real LLM call); `Q2` returns the instant FAQ; `https://avatar-ed.fly.dev/?q=2` opens and immediately answers Q2.
-- [ ] FAQ routing works (e.g. ask about a NameError → `faq_tool`), and links in replies are clickable.
+- [ ] `fly status -a avatar-sergei` — 1 machine in `lhr`, state `started`, health check **passing**.
+- [ ] `curl -s https://avatar-sergei.fly.dev/api/config` → `{"owner_name":"..."}` (200).
+- [ ] `/` loads the visitor UI (dark + light, desktop + mobile); the rings background renders and the footer shows the LinkedIn / GitHub / Hugging Face links (no YouTube).
+- [ ] A normal question streams a reply (real LLM call); `Q2` returns the instant FAQ; `https://avatar-sergei.fly.dev/?q=2` opens and immediately answers Q2.
+- [ ] FAQ routing works (e.g. ask "what is the tennis dashboard?" → `faq_tool` returns Q12), and links in replies are clickable.
 - [ ] `/admin` → wrong password rejected; correct `ADMIN_PASSWORD` opens the dashboard; the inbox lists conversations and a thread opens quickly.
 - [ ] Post a human message from admin → it appears in the visitor's chat within ~10 s (polling), styled as the "live" bubble.
 - [ ] Contact-capture flow ("I'd like to get in touch", give an email) fires a **Pushover** notification.
 - [ ] In DevTools, the admin session cookie has the **`Secure`** flag (confirms `COOKIE_SECURE=1`).
-- [ ] `fly logs -a avatar-ed` shows no errors during the above.
+- [ ] `fly logs -a avatar-sergei` shows no errors during the above.
 - [ ] Abuse guards work: a >20,000-character message is truncated (note appended), and a 21st message within a minute on one conversation returns HTTP 429 with the slow-down message (no model call).
 - [ ] Clean up: delete the test conversation threads from Supabase and any screenshots.
 
 ## 6. Success criteria
 
 Deployment is successful when:
-- The app is reachable at `https://avatar-ed.fly.dev` with HTTPS forced, ≥1 machine always running in `sjc`, and the health check green.
+- The app is reachable at `https://avatar-sergei.fly.dev` with HTTPS forced, ≥1 machine always running in `lhr`, and the health check green.
 - All of the visitor, admin (login-gated), three-way human-in-the-loop, `Qn`/`?q=` instant answers, FAQ-tool routing, and Pushover paths work end to end.
 - Secrets are configured via Fly (never baked into the image); the admin cookie is `Secure`.
-- Logs are clean and the admin "open conversation" feels snappy (DB round-trips are fast from `sjc`).
+- Logs are clean and the admin "open conversation" feels snappy (DB round-trips are fast from `lhr`).
 
 ## Abuse guards (built in)
 
@@ -175,7 +175,7 @@ The rate limit is in-memory per machine (see the scale-out note in section 4): o
 
 ## 7. Custom domain (optional)
 
-Mapping the app to your own domain is optional — `https://<your-app>.fly.dev` works on its own. A subdomain of your site is worth it mainly for clean **iframe embedding**: serving the app from `avatar.<yourdomain>` (the same registrable domain as the host page) keeps the "Keep chat" cookie **first-party**, avoiding third-party-cookie blocking.
+**Not needed for this build** — the owner's website is not deployed yet, so skip this section until it is. Mapping the app to your own domain is optional; `https://avatar-sergei.fly.dev` works on its own. A subdomain of your site is worth it mainly for clean **iframe embedding**: serving the app from `avatar.<yourdomain>` (the same registrable domain as the host page) keeps the "Keep chat" cookie **first-party**, avoiding third-party-cookie blocking.
 
 1. Request the certificate:
 
@@ -193,7 +193,7 @@ Mapping the app to your own domain is optional — `https://<your-app>.fly.dev` 
 
 ## 8. Operations
 
-- Status / logs: `fly status -a avatar-ed`, `fly logs -a avatar-ed`.
-- Scale up/out: `fly scale vm shared-cpu-4x -a avatar-ed` (bigger), `fly scale count 2 -a avatar-ed` (more machines).
-- Roll back: `fly releases -a avatar-ed` then `fly deploy` a prior image, or `fly releases rollback -a avatar-ed`.
-- Secrets change: `fly secrets set -a avatar-ed KEY=value` (rolling restart).
+- Status / logs: `fly status -a avatar-sergei`, `fly logs -a avatar-sergei`.
+- Scale up/out: `fly scale vm shared-cpu-1x --memory 1024 -a avatar-sergei` (more RAM), `fly scale count 2 -a avatar-sergei` (more machines).
+- Roll back: `fly releases -a avatar-sergei` then `fly deploy` a prior image, or `fly releases rollback -a avatar-sergei`.
+- Secrets change: `fly secrets set -a avatar-sergei KEY=value` (rolling restart).

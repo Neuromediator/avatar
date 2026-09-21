@@ -17,7 +17,7 @@ All secrets live in a single `.env` file in the project root. By the end of this
 ```
 OPENROUTER_API_KEY=sk-or-v1-...
 MODEL=openai/gpt-5.4-nano
-OWNER_NAME=Ed Donner
+OWNER_NAME=Sergei Maslennikov
 ADMIN_PASSWORD=your-chosen-admin-password
 PUSHOVER_USER=...
 PUSHOVER_TOKEN=...
@@ -27,7 +27,7 @@ SESSION_SECRET=a-long-random-string
 COOKIE_SECURE=0
 ```
 
-`OWNER_NAME` is the name of the person this Digital Twin represents (you). It is shown in the UI - the site header/subtitle, the page title, how the Avatar refers to itself, and on your own messages when you join a conversation from admin (e.g. "Ed Donner - live"). Set it to how you want your name to appear. It is configuration, never hardcoded, so each owner sets their own.
+`OWNER_NAME` is the name of the person this Digital Twin represents (you). It is shown in the UI - the site header/subtitle, the page title, how the Avatar refers to itself, and on your own messages when you join a conversation from admin (e.g. "Sergei Maslennikov - live"). Set it to how you want your name to appear. It is configuration, never hardcoded, so each owner sets their own.
 
 `SESSION_SECRET` signs the admin session cookie. It is optional locally - if unset, it is derived from `ADMIN_PASSWORD` - but set it to a long random value (e.g. run `openssl rand -hex 32`) so that changing your admin password later does not invalidate live admin sessions. `COOKIE_SECURE` gates whether that cookie requires HTTPS: leave it `0` (or unset) for local http; it is set to `1` automatically in production (see [Deploy to fly.io](#deploy-to-flyio)).
 
@@ -42,7 +42,7 @@ The Avatar's LLM calls go through [OpenRouter](https://openrouter.ai). If you al
    ```
    OPENROUTER_API_KEY=sk-or-v1-...
    ```
-5. Add some credit under **Settings > Credits** if your account has none. The Avatar uses the model in `MODEL`. `openai/gpt-5.4-nano` is very cheap and good for development and testing; for a live site, consider a stronger model such as `openai/gpt-5.4-mini` (just set `MODEL` accordingly).
+5. Add some credit under **Settings > Credits** if your account has none. The Avatar uses the model in `MODEL`. `openai/gpt-5.4-nano` is very cheap and good for development and testing; for a live site, consider a stronger model such as `openai/gpt-5.6-luna` (what this deployment runs; just set `MODEL` accordingly).
 
 ### Supabase
 
@@ -148,7 +148,7 @@ The twin's knowledge and voice come from a few files in `knowledge/`, read into 
 
 There is no vector database. (Earlier versions used `summary.txt` and a `linkedin.pdf`; these have been replaced by `knowledge.md` and `style.md`.)
 
-A couple of owner-specific bits live in the frontend rather than `.env`: the **footer social links** in `frontend/index.html` point to the owner's LinkedIn and YouTube (update them to your own), and the avatar images in `frontend/public/` are generated from `pic.jpg` (see `design-system/docs/avatar-generation.md`). The background texture can also be swapped (rings / crosses / grid) via the `--grid-mark` token in `frontend/src/styles/tokens.css` — see `design-system/docs/background-texture.md`. The brand subtitle and any owner-specific copy are currently set for the default owner, so review those too when making the twin your own.
+A couple of owner-specific bits live in the frontend rather than `.env`: the **footer social links** in `frontend/index.html` (here: LinkedIn, GitHub and Hugging Face - no YouTube), and the avatar images in `frontend/public/`, which are copied from `design-system/assets/` and are already generated from this owner's `pic.jpg` (recipe: `design-system/docs/avatar-generation.md`). The background texture can also be swapped (rings / crosses / grid) via the `--grid-mark` token in `frontend/src/styles/tokens.css` — see `design-system/docs/background-texture.md`. The brand subtitle and all owner-specific copy come from `knowledge/`.
 
 ## Running the app
 
@@ -190,9 +190,9 @@ The same single container deploys to [fly.io](https://fly.io). The full guide - 
 
 1. Install `flyctl` and log in (`fly auth login`; `fly auth whoami` should print your email).
 2. Make sure `.env` is fully populated, including `SESSION_SECRET`. Its values become Fly secrets (pulled in by `deploy.sh`) and are never baked into the image.
-3. Pick your own globally-unique Fly app name and a region near your Supabase database, then set them in `scripts/deploy.sh` (`APP=...`) and `scripts/fly.toml` (`app`, `primary_region`). The reference deployment uses `avatar-ed` in `sjc`.
+3. The Fly app name and region are already set in `scripts/deploy.sh` (`APP=...`) and `scripts/fly.toml` (`app`, `primary_region`): app `avatar-sergei` in region `lhr` (London, closest to the Supabase project in Ireland), on a `shared-cpu-1x` 512 MB machine (about $3.30/month).
 4. Run `scripts/deploy.sh`. It creates the app on first run, stages the secrets, and deploys one always-on machine with `COOKIE_SECURE=1` (so the admin cookie is `Secure` over HTTPS).
-5. The app is then live at `https://<your-app>.fly.dev` (admin at `/admin`).
+5. The app is then live at `https://avatar-sergei.fly.dev` (admin at `/admin`).
 
 Putting the app on your own website is **optional** - the `https://<your-app>.fly.dev` URL works on its own. If you do want it on a subdomain of your site (which also keeps the "Keep chat" cookie first-party when embedding via an `<iframe>`), see the custom-domain section of [DEPLOY.md](DEPLOY.md), and `scripts/wordpress-embed.html` for a paste-ready embed snippet.
 
