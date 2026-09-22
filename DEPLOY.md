@@ -26,7 +26,7 @@ The app is **IO-bound**: a chat reply is dominated by the OpenRouter LLM, which 
 
 ## 2. Deployment artifacts (in `scripts/`)
 
-Keep the Fly config and deploy script alongside the existing `start_mac.sh` / `stop_mac.sh` etc. Two files to add:
+The Fly config and the deploy script live next to the `start_mac.sh` / `stop_mac.sh` scripts:
 
 ### `scripts/fly.toml`
 
@@ -112,7 +112,6 @@ flyctl deploy --config scripts/fly.toml --dockerfile Dockerfile -a "$APP" --ha=f
 echo "Deployed: https://${APP}.fly.dev  (admin at /admin)"
 ```
 
-Make it executable: `chmod +x scripts/deploy.sh`.
 
 ## 3. Environment variables / secrets
 
@@ -148,14 +147,14 @@ It creates the app if needed, stages secrets, and deploys 1 machine to `lhr`. Fo
 fly scale count 2 -a avatar-sergei     # min_machines_running=1 keeps 1 warm; soft_limit balances across both
 ```
 
-Note: the per-conversation rate limit (20 messages/minute) is held in memory **per machine**, so with more than one machine the effective limit is per machine rather than global. With a single always-on machine (the default here) it is exactly 20/min.
+Note: the per-conversation rate limit (20 messages/minute), the admin sign-in throttle (10 failed attempts/minute, 50/hour per client IP, keyed on `Fly-Client-IP`) and the list of signed-out sessions are held in memory **per machine**. With more than one machine they apply per machine rather than globally. With a single always-on machine (the default here) they are exact.
 
 ## 5. Testing (post-deploy smoke)
 
-Run against `https://avatar-sergei.fly.dev`. Use `MODEL=openai/gpt-5.4-nano` for cheap test calls if you like, and clean up test data afterwards.
+Run against `https://avatar-sergei.fly.dev` after each deploy. Use `MODEL=openai/gpt-5.4-nano` for cheap test calls if you like, and clean up test data afterwards. The first production run (2026-09-22) passed 19/19; its results are recorded in `test/e2e_test_plan.md` (item D10).
 
 - [ ] `fly status -a avatar-sergei` — 1 machine in `lhr`, state `started`, health check **passing**.
-- [ ] `curl -s https://avatar-sergei.fly.dev/api/config` → `{"owner_name":"..."}` (200).
+- [ ] `curl -s https://avatar-sergei.fly.dev/api/config` → `{"owner_name":"...","owner_first_name":"..."}` (200).
 - [ ] `/` loads the visitor UI (dark + light, desktop + mobile); the rings background renders and the footer shows the LinkedIn / GitHub / Hugging Face links (no YouTube).
 - [ ] A normal question streams a reply (real LLM call); `Q2` returns the instant FAQ; `https://avatar-sergei.fly.dev/?q=2` opens and immediately answers Q2.
 - [ ] FAQ routing works (e.g. ask "what is the tennis dashboard?" → `faq_tool` returns Q12), and links in replies are clickable.
