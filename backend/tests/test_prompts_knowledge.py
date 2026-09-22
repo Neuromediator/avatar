@@ -118,7 +118,8 @@ def test_faq_tool_output_contains_full_question_and_answer(knowledge):
 def test_faq_tool_output_unknown_number(knowledge):
     output = faq_tool_output(knowledge, 77, "Ada")
     assert "no FAQ entry number 77" in output
-    assert "1 to 16" in output
+    numbers = knowledge.faq_numbers
+    assert f"{numbers[0]} to {numbers[-1]}" in output  # e.g. "1 to 16"; follows faq.jsonl
 
 
 # ---------------------------------------------------------------------------

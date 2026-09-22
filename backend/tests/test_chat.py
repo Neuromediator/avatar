@@ -379,7 +379,7 @@ def test_instant_answer_unknown_number(client, repo, fake_stream):
     assert events[1][1] == {"faq": 99}
     content = events[-1][1]["message"]["content"]
     assert "Q99" in content
-    assert "Q1 to Q16" in content
+    assert client.app.state.knowledge.faq_range_text() in content  # e.g. "Q1 to Q16"
     assert fake_stream.calls == []
     assert repo.for_conversation(cid)[-1]["tool_calls"] == [{"type": "instant", "faq": 99}]
 
