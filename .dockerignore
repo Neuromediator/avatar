@@ -1,0 +1,46 @@
+# Build context = repo root. Only frontend/, backend/ (app + lockfile) and
+# knowledge/ are needed to build and run the image.
+
+# Secrets: never enter the build context (config arrives at runtime).
+.env
+.env.*
+**/.env
+**/.env.*
+
+# VCS / editor / OS noise
+.git
+.gitignore
+.github
+.vscode
+.idea
+**/.DS_Store
+*.log
+**/*.log
+
+# Dependencies and build outputs (rebuilt inside the image)
+**/node_modules
+**/.venv
+frontend/dist
+**/__pycache__
+**/*.py[co]
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+
+# Tests and test artefacts (not needed at runtime)
+test/
+backend/tests/
+playwright-report
+test-results
+**/playwright-report
+**/test-results
+
+# Not part of the runtime image
+design-system/
+reference/
+scripts/
+README.md
+SPEC.md
+DEPLOY.md
+CLAUDE.md
+LICENSE

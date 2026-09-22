@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Avatar Admin</title>
+<meta name="description" content="Admin dashboard for the digital twin of {{OWNER_NAME}}.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#04152a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f6fb" media="(prefers-color-scheme: light)">
+<meta name="avatar:owner-name" content="{{OWNER_NAME}}">
+<meta name="avatar:owner-first-name" content="{{OWNER_FIRST_NAME}}">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<!-- Pre-paint theme: apply the stored theme before first paint (dark default). -->
+<script>(function(){try{var t=localStorage.getItem('avatar-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,18..72,400;0,18..72,500;0,18..72,600;1,18..72,400;1,18..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/src/styles/tokens.css">
+<link rel="stylesheet" href="/src/styles/components.css">
+<link rel="stylesheet" href="/src/styles/base.css">
+<link rel="stylesheet" href="/src/styles/admin.css">
+</head>
+<body class="admin-body">
+<!-- Admin dashboard: the login gate or the inbox/thread workspace is mounted here by src/admin/main.ts. -->
+<div id="app" class="admin-app" aria-busy="true"></div>
+<noscript><p class="admin-noscript">The Avatar admin dashboard needs JavaScript.</p></noscript>
+<script type="module" src="/src/admin/main.ts"></script>
+</body>
+</html>

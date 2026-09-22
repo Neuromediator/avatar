@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<title>{{OWNER_NAME}} · Avatar</title>
+<meta name="description" content="Chat with the digital twin of {{OWNER_NAME}}, an LLM engineer and AI practitioner in Tallinn, Estonia. Ask about projects, skills and background. The real {{OWNER_FIRST_NAME}} can join the conversation.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{OWNER_NAME}} · Avatar">
+<meta property="og:description" content="Chat with the digital twin of {{OWNER_NAME}}, an LLM engineer and AI practitioner in Tallinn, Estonia.">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#04152a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f6fb" media="(prefers-color-scheme: light)">
+<meta name="avatar:owner-name" content="{{OWNER_NAME}}">
+<meta name="avatar:owner-first-name" content="{{OWNER_FIRST_NAME}}">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<!-- Pre-paint theme: apply the stored theme before first paint (dark default). -->
+<script>(function(){try{var t=localStorage.getItem('avatar-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,18..72,400;0,18..72,500;0,18..72,600;1,18..72,400;1,18..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/src/styles/tokens.css">
+<link rel="stylesheet" href="/src/styles/components.css">
+<link rel="stylesheet" href="/src/styles/base.css">
+<link rel="stylesheet" href="/src/styles/visitor.css">
+</head>
+<body class="hud-grid">
+<div id="app" class="app">
+
+  <!-- ===== Top bar: brand · name/initials · Keep chat · Reset · theme ===== -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg class="brand-mark-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle class="bm-solid" cx="9.5" cy="13" r="5"></circle><circle class="bm-ring" cx="15.5" cy="13" r="5"></circle><circle class="bm-node" cx="15.5" cy="13" r="1.4"></circle></svg></span>
+      <div class="brand-text">
+        <div class="brand-name">Avatar</div>
+        <div class="brand-sub"><span class="brand-sub-name">{{OWNER_NAME}}</span><span class="brand-sub-role"> · digital twin</span></div>
+      </div>
+    </div>
+
+    <div class="topbar-prefs">
+      <label class="name-field" title="Your name or initials (optional)">
+        <svg class="icon icon--sm" aria-hidden="true" focusable="false"><use href="#i-visitor"></use></svg>
+        <span class="visually-hidden">Your name or initials (optional)</span>
+        <input type="text" id="visitorName" maxlength="60" placeholder="Your name / initials" autocomplete="given-name" autocapitalize="words" spellcheck="false" enterkeyhint="next">
+      </label>
+      <label class="switch keep-switch" title="Remember this conversation in your browser">
+        <input type="checkbox" id="keepChat" role="switch" checked>
+        <span class="track" aria-hidden="true"><span class="thumb"></span></span>
+        <span class="switch-label">Keep chat</span>
+      </label>
+    </div>
+
+    <div class="topbar-actions">
+      <button type="button" class="btn btn--ghost btn--sm reset-btn" id="resetChat" title="Clear the chat and start a new conversation" aria-label="Reset chat">
+        <svg class="icon icon--sm" aria-hidden="true" focusable="false"><use href="#i-reset"></use></svg><span class="reset-label">Reset</span>
+      </button>
+      <span class="divider-v" aria-hidden="true"></span>
+      <button type="button" class="icon-btn" id="themeToggle" title="Toggle light / dark">
+        <svg class="icon icon--sm theme-moon" aria-hidden="true" focusable="false"><use href="#i-moon"></use></svg>
+        <svg class="icon icon--sm theme-sun" aria-hidden="true" focusable="false" style="display:none"><use href="#i-sun"></use></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== Conversation + composer ===== -->
+  <main class="chat" id="main">
+    <div class="convo scroll" id="convo" role="region" aria-label="Conversation">
+      <div class="convo-inner" id="thread" data-state="loading">
+
+        <section class="intro" id="intro" aria-labelledby="introTitle">
+          <div class="avatar avatar-twin intro-avatar" aria-hidden="true"></div>
+          <h1 id="introTitle">I’m {{OWNER_FIRST_NAME}}’s <em>digital twin</em>.<br> Ask me anything, and the real {{OWNER_FIRST_NAME}} might join in.</h1>
+          <p>I know {{OWNER_FIRST_NAME}}’s background, education and AI projects. If you want to get in touch, I can pass your message on to {{OWNER_FIRST_NAME}} directly.</p>
+          <div class="suggest-row" role="group" aria-label="Example questions">
+            <button type="button" class="chip" data-prompt>What is {{OWNER_FIRST_NAME}}’s educational background?</button>
+            <button type="button" class="chip" data-prompt>What projects have you built?</button>
+            <button type="button" class="chip" data-prompt>What are {{OWNER_FIRST_NAME}}’s interests, values and lifestyle habits?</button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="composer-dock">
+      <button type="button" class="jump-latest" id="jumpLatest" hidden>
+        <svg class="icon icon--sm" aria-hidden="true" focusable="false"><use href="#i-chev-down"></use></svg><span>Latest</span>
+      </button>
+      <div class="composer-wrap">
+        <div class="composer" id="composer">
+          <label class="visually-hidden" for="composerInput">Message {{OWNER_FIRST_NAME}}’s digital twin</label>
+          <textarea id="composerInput" rows="1" autofocus enterkeyhint="send" placeholder="Message {{OWNER_FIRST_NAME}}’s twin…  (type “Q2” for an instant answer)"></textarea>
+          <button type="button" class="btn-send" id="sendBtn" title="Send (Enter)" aria-label="Send message">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-send"></use></svg>
+          </button>
+        </div>
+        <div class="composer-foot">
+          <div class="composer-hint">
+            <span class="hint-keys"><span class="kbd">Enter</span> to send</span>
+            <span class="sep hint-keys" aria-hidden="true"></span>
+            <span class="hint-keys"><span class="kbd">Shift</span>+<span class="kbd">Enter</span> for a new line</span>
+            <span class="sep hint-keys" aria-hidden="true"></span>
+            <span class="hint-qn">Type <strong class="qn">Qn</strong> for an instant FAQ answer</span>
+          </div>
+          <nav class="social" aria-label="{{OWNER_NAME}} elsewhere">
+            <a href="https://www.linkedin.com/in/sergei-maslennikov-ai" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-linkedin"></use></svg>LinkedIn</a>
+            <a href="https://github.com/Neuromediator" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-github"></use></svg>GitHub</a>
+            <a href="https://huggingface.co/Neuromediator" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-huggingface"></use></svg>Hugging Face</a>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Screen-reader announcements (new messages, reply complete). -->
+  <div class="visually-hidden" id="liveRegion" aria-live="polite" aria-atomic="true"></div>
+</div>
+<script type="module" src="/src/visitor/main.ts"></script>
+</body>
+</html>

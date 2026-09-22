@@ -218,3 +218,12 @@ __marimo__/
 .streamlit/secrets.toml
 
 .DS_Store
+
+# Avatar build / test artefacts
+node_modules/
+frontend/dist/
+test/screenshots/
+playwright-report/
+test-results/
+frontend/test-results/
+frontend/playwright-report/

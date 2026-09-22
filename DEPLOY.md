@@ -34,6 +34,8 @@ Keep the Fly config and deploy script alongside the existing `start_mac.sh` / `s
 # Fly.io config for the Avatar app. Deploy with scripts/deploy.sh.
 app = "avatar-sergei"
 primary_region = "lhr"               # closest Fly region to the Supabase eu-west-1 (Ireland) DB
+kill_signal = "SIGINT"               # uvicorn shuts down gracefully on SIGINT (Fly's default, made explicit)
+kill_timeout = 75                    # > the app's 60 s drain so in-flight replies are stored before SIGKILL (Fly default is 5 s, max 300)
 
 [env]
   PORT = "8000"                      # matches the Dockerfile's uvicorn --port
@@ -67,6 +69,8 @@ Note: the `Dockerfile` and build context (`frontend/`, `backend/`, `knowledge/`)
 
 Why the concurrency block matters: if omitted, Fly's defaults are low (~20 soft / 25 hard **connections**). Because every chat reply holds a connection open while it streams, a single machine would refuse the ~26th simultaneous user. `hard_limit = 80` is comfortably above any realistic peak for a personal site while staying within what 512 MB can hold; `soft_limit` only does anything once more than one machine exists.
 
+Why `kill_timeout` matters: on every deploy or restart Fly sends `kill_signal` (SIGINT) and then SIGKILLs the machine after `kill_timeout`, which defaults to only 5 s. The app drains in-flight chat replies for up to 60 s on shutdown so they are stored in Supabase (a visitor whose stream broke then gets the reply by polling or reloading), so `kill_timeout` must be above that. An idle machine still stops almost at once.
+
 ### `scripts/deploy.sh`
 
 ```bash
@@ -89,13 +93,18 @@ flyctl status -a "$APP" >/dev/null 2>&1 || { echo "Creating $APP..."; flyctl app
 # 2. Stage secrets from .env (surrounding quotes stripped). PORT/COOKIE_SECURE are
 #    set in fly.toml [env], not here. --stage applies them on the next deploy (one rollout).
 KEYS="OPENROUTER_API_KEY MODEL OWNER_NAME ADMIN_PASSWORD PUSHOVER_USER PUSHOVER_TOKEN SUPABASE_URL SUPABASE_KEY SESSION_SECRET"
-args=()
+args=(); staged=(); skipped=()
 for k in $KEYS; do
-  v=$(grep -E "^${k}=" .env | head -1 | cut -d= -f2-)
+  v=$(grep -E "^${k}=" .env | head -1 | cut -d= -f2- || true)
   v="${v%\"}"; v="${v#\"}"; v="${v%\'}"; v="${v#\'}"
-  [ -n "$v" ] && args+=("${k}=${v}")
+  if [ -n "$v" ]; then args+=("${k}=${v}"); staged+=("$k"); else skipped+=("$k"); fi
 done
-[ ${#args[@]} -gt 0 ] && flyctl secrets set --stage -a "$APP" "${args[@]}"
+echo "Staging secrets: ${staged[*]:-(none)}"
+[ ${#skipped[@]} -gt 0 ] && echo "Skipped (missing/empty in .env): ${skipped[*]}"
+# Values go over stdin, never argv (argv is visible in ps / /proc/<pid>/cmdline).
+if [ ${#args[@]} -gt 0 ]; then
+  printf '%s\n' "${args[@]}" | flyctl secrets import --stage -a "$APP"
+fi
 
 # 3. Deploy (build context = repo root; start with 1 machine — scale later if needed).
 flyctl deploy --config scripts/fly.toml --dockerfile Dockerfile -a "$APP" --ha=false
@@ -117,6 +126,8 @@ Set in `scripts/fly.toml` `[env]` (non-sensitive, committed):
 Set as **Fly secrets** (sensitive, pulled from `.env` by `deploy.sh`):
 
 `OPENROUTER_API_KEY`, `MODEL`, `OWNER_NAME`, `ADMIN_PASSWORD`, `PUSHOVER_USER`, `PUSHOVER_TOKEN`, `SUPABASE_URL`, `SUPABASE_KEY`, `SESSION_SECRET`.
+
+`deploy.sh` stages them with `flyctl secrets import --stage`, piping the values over stdin so they never appear on a command line (visible in `ps`). Any key that is missing or empty in `.env` is skipped and named in the output (only key names are printed, never values).
 
 Notes:
 - **`SESSION_SECRET`** (now in `.env`) signs the admin session cookie. Setting it explicitly means rotating `ADMIN_PASSWORD` later won't unexpectedly invalidate the session-secret derivation. Use a long random value.

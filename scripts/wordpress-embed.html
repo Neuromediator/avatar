@@ -1,0 +1,103 @@
+<!--
+  Avatar - WordPress embed (optional)
+  ===================================
+  Paste this whole snippet into a "Custom HTML" block on the page that should
+  host the digital twin (e.g. yourdomain.com/avatar). It:
+
+    1. pins the app full-bleed just below your site's navigation bar
+       (height = viewport minus the nav; tune --avatar-nav-h below),
+    2. overrides the theme's content-column max-width so the frame is not
+       squeezed into the text column,
+    3. guards against horizontal scrolling on narrow screens,
+    4. forwards ?q=N from this page's URL into the frame, so
+       yourdomain.com/avatar?q=2 opens the twin and immediately answers Q2.
+
+  Two things to change for your own site:
+    - BASE (in the script at the bottom): your app's URL, ideally your own
+      subdomain, e.g. "https://avatar.yourdomain.com".
+    - The iframe title: your own name.
+
+  Cookies / "Keep chat": the visitor page remembers the conversation with a
+  SameSite=Lax cookie. Inside a cross-site iframe (e.g. *.fly.dev embedded in
+  yourdomain.com) browsers treat that cookie as third-party and may block it,
+  so the chat may not persist between visits. Serve the app from a subdomain
+  of this site (e.g. avatar.yourdomain.com, via a fly.io custom domain mapped
+  with a CNAME - see DEPLOY.md section 7) and set BASE to it: the cookie is
+  then first-party and "Keep chat" works.
+
+  Framing: the app sends no X-Frame-Options / CSP, so it can be framed. If you
+  add security headers later, allow this host with
+  "Content-Security-Policy: frame-ancestors https://yourdomain.com" rather than
+  "X-Frame-Options: DENY".
+
+  WordPress notes: only users with the unfiltered_html capability (admins on a
+  single site) can save <script> in a Custom HTML block. Keep the <style> and
+  <script> bodies free of blank lines so no editor inserts <p> tags into them.
+-->
+<style>
+  :root {
+    /* Height of your theme's header/nav bar. Measure it in DevTools and tune. */
+    --avatar-nav-h: 80px;
+    /* Offset for the WordPress admin bar (only shown to logged-in users). */
+    --avatar-admin-bar-h: 0px;
+  }
+  @media (max-width: 782px) {
+    :root { --avatar-nav-h: 64px; }
+  }
+  body.admin-bar { --avatar-admin-bar-h: 32px; }
+  @media (max-width: 782px) {
+    body.admin-bar { --avatar-admin-bar-h: 46px; }
+  }
+  /* Overflow guard: never let the full-bleed frame cause sideways scrolling.
+     "clip" (unlike "hidden") keeps a sticky site header working. */
+  html, body { overflow-x: clip; }
+  /* In-flow placeholder: reserves the frame's height so the page footer sits below it. */
+  .avatar-embed {
+    height: calc(100vh - var(--avatar-nav-h) - var(--avatar-admin-bar-h));
+    height: calc(100dvh - var(--avatar-nav-h) - var(--avatar-admin-bar-h));
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* The frame itself: pinned full-bleed below the nav. The !important max-width
+     beats the theme's content-column limit (e.g. .entry-content > * or
+     .is-layout-constrained > * { max-width: var(--wp--style--global--content-size) }). */
+  .avatar-embed > iframe {
+    position: fixed;
+    top: calc(var(--avatar-nav-h) + var(--avatar-admin-bar-h));
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none !important;
+    height: calc(100vh - var(--avatar-nav-h) - var(--avatar-admin-bar-h));
+    height: calc(100dvh - var(--avatar-nav-h) - var(--avatar-admin-bar-h));
+    margin: 0 !important;
+    border: 0;
+    display: block;
+    background: #04152a; /* the app's dark canvas (--surface-0), shown while it loads */
+    z-index: 10;
+  }
+</style>
+<div class="avatar-embed alignfull">
+  <!-- Change the title to your own name. The src is set by the script below. -->
+  <iframe
+    id="avatar-frame"
+    title="Sergei Maslennikov · digital twin"
+    allow="clipboard-write"
+    referrerpolicy="strict-origin-when-cross-origin"
+    loading="eager"></iframe>
+</div>
+<script>
+  (function () {
+    // Change BASE to your own app URL (ideally your own subdomain, e.g. "https://avatar.yourdomain.com").
+    var BASE = "https://avatar-sergei.fly.dev";
+    var frame = document.getElementById("avatar-frame");
+    if (!frame) return;
+    var src = BASE.replace(/\/+$/, "") + "/";
+    // Forward ?q=N (instant FAQ answer) from this page's URL into the frame.
+    var q = new URLSearchParams(window.location.search).get("q");
+    if (q && /^\d{1,3}$/.test(q.trim())) {
+      src += "?q=" + encodeURIComponent(q.trim());
+    }
+    frame.src = src;
+  })();
+</script>
