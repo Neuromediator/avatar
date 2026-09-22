@@ -332,7 +332,15 @@ frontend suite runs 18 and 20 against the container, and locally on :8100).
 - [x] D9 `scripts/wordpress-embed.html` defines `var BASE = "https://avatar-sergei.fly.dev";`, forwards only a numeric `?q=` into the iframe `src`, and keeps its `<style>`/`<script>` free of blank lines (WordPress would insert `<p>`) (`test_embed_defines_a_base_constant_for_the_app_url`, `test_embed_forwards_q_to_the_iframe_src`, `test_embed_snippet_has_no_blank_lines_inside_style_or_script`).
 - [x] D-E1 In a browser: the snippet pasted into a host page served from `127.0.0.1` (a different site from the app on `localhost`), with `BASE` pointed at the server under test, opened as `/avatar?q=2`: the iframe `src` is `<BASE>/?q=2`, the visitor page inside answers Q2 on arrival ("instant · Q2", "**Q2:** ..."), clears `?q` from its own URL, and the frame is full-bleed below the 80 px nav with no sideways scrolling (screenshot `desktop-embed-wordpress-q2`).
 - [x] D-E2 A non-numeric `?q` (`2"><script>...`) is not forwarded: the iframe `src` is `<BASE>/` and the intro shows with no message sent.
-- [ ] D10 `fly deploy` and the `DEPLOY.md` smoke tests against `https://avatar-sergei.fly.dev`. **Not executed:** deploying is forbidden in this testing phase (no `scripts/deploy.sh`, no mutating `flyctl`). D1-D9 cover the files the deploy is driven by.
+- [x] D10 `fly deploy` and the `DEPLOY.md` smoke tests against `https://avatar-sergei.fly.dev`. Deployed by the owner with `scripts/deploy.sh` on 2026-09-22 (app created, 1 machine `shared-cpu-1x` in `lhr`, image 101 MB, health check passing, http redirects to https). DEPLOY.md section 5 smoke run on production (model `openai/gpt-5.6-luna`), 19/19 passed:
+  - `/api/config` 200 in 0.19 s; `/`, `/admin` and static assets 200; title from `OWNER_NAME`, no `{{` placeholders, no YouTube link; footer links LinkedIn / GitHub / Hugging Face.
+  - Composer focused on load and after a reply; the three new conversation starters shown.
+  - "What is the Tennis Match Research Dashboard?" streamed a reply via `faq_tool` Q12 with clickable links (`target=_blank`); `Q2` instant with the tag; `/?q=2` answered on arrival and cleared the param (phone, light).
+  - Admin: wrong password rejected; login sets the `avatar_admin` cookie with `Secure`, `HttpOnly`, `SameSite=Lax` (confirms `COOKIE_SECURE=1`); a thread opened in 225 ms; the owner's reply reached the visitor page as "SERGEI MASLENNIKOV · LIVE".
+  - Contact capture fired `push_tool` (one real Pushover notification) and the admin row showed "Needs you".
+  - Abuse guards: the 21st message in a minute got 429; a 25,200-char message was stored as 20,000 chars plus the exact note.
+  - No page errors; `fly logs`: 0 tracebacks, 0 ERROR/WARNING lines, 0 5xx.
+  - The 5 smoke conversations (53 rows) and the smoke screenshots were deleted afterwards.
 
 ---
 
