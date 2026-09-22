@@ -33,7 +33,13 @@ from .auth import (
     set_session_cookie,
 )
 from .config import Settings, get_settings
-from .db import MessageRepository, conversation_name_from_rows, get_repository, summarize_conversations
+from .db import (
+    MessageRepository,
+    conversation_name_from_rows,
+    create_repository,
+    get_repository,
+    summarize_conversations,
+)
 from .knowledge import Knowledge, instant_answer, load_knowledge, parse_instant_request
 from .prompts import build_task_prompt, push_delivered
 from .ratelimit import LOGIN_RATE_LIMIT_DETAIL, RATE_LIMIT_DETAIL, ConversationRateLimiter, LoginRateLimiter
@@ -52,6 +58,10 @@ BODY_TOO_LARGE_DETAIL = "That message is far too long to send. Please send somet
 MAX_TOOL_OUTPUT_CHARS = 2_000
 CHAT_ERROR_DETAIL = "Sorry, something went wrong while I was writing my reply. Please try again in a moment."
 SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+# Supabase pauses free-plan projects after about a week without activity, and the Fly
+# health check never touches the database, so the app pings it itself.
+KEEPALIVE_FIRST_DELAY_SECONDS = 60
+KEEPALIVE_INTERVAL_SECONDS = 12 * 60 * 60
 
 
 # ---------------------------------------------------------------------------
@@ -355,6 +365,24 @@ def render_page(settings: Settings, filename: str) -> Response:
     return HTMLResponse(page, headers={"Cache-Control": "no-cache"})
 
 
+async def keep_database_awake(
+    app: FastAPI,
+    first_delay: float = KEEPALIVE_FIRST_DELAY_SECONDS,
+    interval: float = KEEPALIVE_INTERVAL_SECONDS,
+) -> None:
+    """Ping the database shortly after startup and then every ``interval`` seconds, forever."""
+    await asyncio.sleep(first_delay)
+    while True:
+        try:
+            if app.state.repository is None:
+                app.state.repository = create_repository(app.state.settings)
+            await app.state.repository.ping()
+            logger.info("Database keep-alive ping OK")
+        except Exception as exc:  # never let the loop die; the next ping may succeed
+            logger.warning("Database keep-alive ping failed: %s", exc)
+        await asyncio.sleep(interval)
+
+
 # ---------------------------------------------------------------------------
 # App factory
 # ---------------------------------------------------------------------------
@@ -377,7 +405,9 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        keepalive = asyncio.create_task(keep_database_awake(app))
         yield
+        keepalive.cancel()
         pending = [task for task in app.state.chat_tasks if not task.done()]
         if pending:  # let in-flight replies finish and be stored before shutdown
             await asyncio.wait(pending, timeout=60)

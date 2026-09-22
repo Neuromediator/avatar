@@ -119,6 +119,9 @@ class FakeRepository:
         self.calls.append("delete_conversation")
         self.rows = [r for r in self.rows if r["conversation_id"] != conversation_id]
 
+    async def ping(self):
+        self.calls.append("ping")
+
     def for_conversation(self, conversation_id: str) -> list[dict[str, Any]]:
         return sort_rows(r for r in self.rows if r["conversation_id"] == conversation_id)
 

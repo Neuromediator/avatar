@@ -86,6 +86,10 @@ def test_full_repository_roundtrip(supabase_repo, conversation_id):
     assert rows[-1]["read"] is False  # resolve does not mark read
 
 
+def test_keepalive_ping_reaches_the_real_table(supabase_repo):
+    run(supabase_repo.ping())  # raises if the Data API or the table does not answer
+
+
 def test_open_unknown_conversation_returns_no_rows(supabase_repo, conversation_id):
     assert run(supabase_repo.open_conversation(conversation_id)) == []
     assert run(supabase_repo.get_conversation(conversation_id)) == []

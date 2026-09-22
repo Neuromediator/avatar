@@ -85,6 +85,8 @@ class MessageRepository(Protocol):
 
     async def delete_conversation(self, conversation_id: str) -> None: ...
 
+    async def ping(self) -> None: ...
+
 
 # ---------------------------------------------------------------------------
 # Pure helpers (shared by the real repository, the fake one and the routes)
@@ -257,6 +259,9 @@ class SupabaseRepository:
 
         execute(self._table().delete(returning=ReturnMethod.minimal).eq("conversation_id", conversation_id))
 
+    def _ping(self) -> None:
+        execute(self._table().select("id").limit(1))
+
     # -- async interface -----------------------------------------------------
 
     async def insert_message(
@@ -295,6 +300,10 @@ class SupabaseRepository:
 
     async def delete_conversation(self, conversation_id: str) -> None:
         await asyncio.to_thread(self._delete, conversation_id)
+
+    async def ping(self) -> None:
+        """The cheapest possible query: proves the Data API and table respond."""
+        await asyncio.to_thread(self._ping)
 
 
 # ---------------------------------------------------------------------------
