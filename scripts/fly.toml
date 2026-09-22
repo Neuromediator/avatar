@@ -1,4 +1,5 @@
-# Fly.io config for the Avatar app. Deploy with scripts/deploy.sh.
+# Fly.io config for the Avatar app. Deployed by .github/workflows/deploy.yml on push to main,
+# or manually with scripts/deploy.sh.
 app = "avatar-sergei"
 primary_region = "lhr"               # closest Fly region to the Supabase eu-west-1 (Ireland) DB
 kill_signal = "SIGINT"               # uvicorn shuts down gracefully on SIGINT (Fly's default, made explicit)
@@ -26,6 +27,9 @@ kill_timeout = 75                    # > the app's 60 s drain so in-flight repli
     interval = "15s"
     timeout = "3s"
     grace_period = "10s"
+
+[deploy]
+  strategy = "bluegreen"           # start the new version beside the old; switch only once its health check passes
 
 [[vm]]
   size = "shared-cpu-1x"

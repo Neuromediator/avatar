@@ -152,6 +152,8 @@ grant select, insert, update, delete on public.messages to service_role;
 
 Supabase warns that the table has no Row Level Security; choose **Run without RLS**. This is intentional: only the backend touches the table, using the secret key, and no publishable/anon key is used anywhere, so no browser can reach it. The backend enforces admin access itself.
 
+Supabase pauses free-plan projects after about a week without activity, and Fly's health check never touches the database, so the app pings the table itself (a one-row select 60 seconds after startup, then every 12 hours).
+
 - `role` is `visitor`, `avatar` or `human` (Sergei). `conversation_name` holds the visitor's optional name.
 - `tool_calls` records the tools the Avatar used in that reply (or an `instant` marker for a `Qn` answer).
 - `needs_attention` is set on the reply of a turn that used `push_tool`. `read` tracks whether Sergei has seen the row. Opening a thread in admin clears both in one call.
@@ -212,8 +214,9 @@ Vite serves the visitor page at http://localhost:5173 and the admin page, also w
    Keep `query` short and specific: it is what the model matches a visitor's question against. A malformed row stops the app at startup with the file and line number.
 
 2. Run the backend tests: `cd backend && uv run pytest -q`. They read the FAQ range from `faq.jsonl`, so new entries need no test changes.
-3. Commit and push.
-4. Redeploy with `scripts/deploy.sh` (see [DEPLOY.md](DEPLOY.md)). Knowledge is read once at startup and copied into the image, so a change needs a backend restart locally, a rebuild with the start script in Docker, and a redeploy on Fly.
+3. Commit and push to `main`. GitHub Actions runs the tests and, if they pass, deploys to Fly automatically (see [Deployment](#deployment)).
+
+Knowledge is read once at startup and copied into the image, so locally a change needs a backend restart (or a rebuild with the Docker start script).
 
 Some owner-specific copy is hand-written in the frontend rather than read from `knowledge/`, and needs a frontend rebuild (and redeploy) when it changes:
 
@@ -242,7 +245,8 @@ Production is the same container on Fly.io:
 - App `avatar-sergei` at https://avatar-sergei.fly.dev, region `lhr` (London, the closest Fly region to the Supabase project in Ireland).
 - One `shared-cpu-1x` machine with 512 MB RAM, always on (about $3.30/month).
 - `scripts/fly.toml` sets `COOKIE_SECURE=1`, forces HTTPS, health-checks `/api/config`, and allows 75 seconds for shutdown so in-flight replies (up to 60 seconds) are saved.
-- `scripts/deploy.sh` creates the app if needed, stages the secrets from `.env` as Fly secrets (passed over stdin, never baked into the image), and deploys.
+- Every push to `main` that changes the app or `knowledge/` is tested and deployed by `.github/workflows/deploy.yml`: backend tests and the frontend build first, then a blue-green `flyctl deploy` that switches traffic only once the new version is healthy. Doc-only pushes do not deploy. It uses one repository secret, `FLY_API_TOKEN` (a deploy token for this app).
+- `scripts/deploy.sh` is the manual path: it creates the app if needed, stages the secrets from `.env` as Fly secrets (passed over stdin, never baked into the image), and deploys.
 
 There is no custom domain yet. [DEPLOY.md](DEPLOY.md) covers the full procedure, secrets, the post-deploy smoke test, operations, and how to add a subdomain later. `scripts/wordpress-embed.html` is a ready iframe snippet for a WordPress page; it forwards the host page's `?q=` to the app. Inside a cross-site iframe the "Keep chat" cookie may not persist, which is why DEPLOY.md recommends serving the app from a subdomain of the host site.
 

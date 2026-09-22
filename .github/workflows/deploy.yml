@@ -1,0 +1,62 @@
+# Test, then deploy to Fly.io, on every push to main that changes the app or its knowledge.
+name: Test and deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "knowledge/**"
+      - "backend/**"
+      - "frontend/**"
+      - "Dockerfile"
+      - ".dockerignore"
+      - "scripts/fly.toml"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch: # "Run workflow" button for a manual redeploy
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false # never interrupt a deploy; a newer push waits its turn
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10
+
+      # No .env and no secrets here: the suite runs on an in-memory repository and a fake
+      # agent; the real-Supabase tests skip themselves and the real-LLM tests are opt-in.
+      # The connectivity check needs real credentials, so it is left to local runs.
+      - name: Backend tests
+        working-directory: backend
+        run: uv run --frozen pytest -q --ignore=tests/test_supabase_connection.py
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22 # same as the Dockerfile's build stage
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Frontend typecheck and build
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: superfly/flyctl-actions/setup-flyctl@1.5
+
+      # Builds on Fly's remote builder; runtime secrets already live in Fly (set by deploy.sh).
+      - name: Deploy to Fly.io
+        run: flyctl deploy --config scripts/fly.toml --dockerfile Dockerfile --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

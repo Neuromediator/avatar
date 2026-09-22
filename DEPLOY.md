@@ -31,7 +31,8 @@ The Fly config and the deploy script live next to the `start_mac.sh` / `stop_mac
 ### `scripts/fly.toml`
 
 ```toml
-# Fly.io config for the Avatar app. Deploy with scripts/deploy.sh.
+# Fly.io config for the Avatar app. Deployed by .github/workflows/deploy.yml on push to main,
+# or manually with scripts/deploy.sh.
 app = "avatar-sergei"
 primary_region = "lhr"               # closest Fly region to the Supabase eu-west-1 (Ireland) DB
 kill_signal = "SIGINT"               # uvicorn shuts down gracefully on SIGINT (Fly's default, made explicit)
@@ -59,6 +60,9 @@ kill_timeout = 75                    # > the app's 60 s drain so in-flight repli
     interval = "15s"
     timeout = "3s"
     grace_period = "10s"
+
+[deploy]
+  strategy = "bluegreen"           # start the new version beside the old; switch only once its health check passes
 
 [[vm]]
   size = "shared-cpu-1x"
@@ -135,7 +139,20 @@ Notes:
 
 ## 4. Deploy
 
-First time and every subsequent deploy are the same command:
+**Automatic (normal path).** Every push to `main` that touches `knowledge/`, `backend/`, `frontend/`, the `Dockerfile`, `.dockerignore`, `scripts/fly.toml` or the workflow itself runs `.github/workflows/deploy.yml`:
+
+1. **test**: the backend pytest suite (no secrets needed; the real-Supabase tests skip themselves and the real-LLM tests are opt-in; the connectivity check is left to local runs) and the frontend typecheck + build.
+2. **deploy**: only if both pass, `flyctl deploy --config scripts/fly.toml --dockerfile Dockerfile --remote-only`. With `strategy = "bluegreen"` the new version starts beside the old one and traffic switches only once its health check passes, so a bad build never replaces a working site.
+
+Pushes that only change docs or test plans do not deploy. The Actions tab has a **Run workflow** button for a manual redeploy, and runs queue rather than overlap. The workflow needs one repository secret, `FLY_API_TOKEN`, a deploy token scoped to this app:
+
+```bash
+fly tokens create deploy -a avatar-sergei | gh secret set FLY_API_TOKEN -R Neuromediator/avatar
+```
+
+The runtime secrets stay in Fly (staged by `deploy.sh`); GitHub never sees them. If a Fly secret changes, run `fly secrets set -a avatar-sergei KEY=value`.
+
+**Manual.** The first deploy, and any deploy from your own machine, is one command:
 
 ```bash
 scripts/deploy.sh
