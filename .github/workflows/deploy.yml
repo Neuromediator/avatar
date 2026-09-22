@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.2.0 # this action publishes full version tags only
 
       # No .env and no secrets here: the suite runs on an in-memory repository and a fake
       # agent; the real-Supabase tests skip themselves and the real-LLM tests are opt-in.
