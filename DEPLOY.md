@@ -125,6 +125,7 @@ Set in `scripts/fly.toml` `[env]` (non-sensitive, committed):
 |---|---|---|
 | `PORT` | `8000` | matches the Dockerfile's uvicorn port / `internal_port` |
 | `COOKIE_SECURE` | `1` | production is HTTPS, so the admin session cookie must be `Secure` (it defaults off so local http works) |
+| `FRAME_ANCESTORS` | the owner's site origins | space-separated; sends `Content-Security-Policy: frame-ancestors 'self' <origins>` so only that site can embed the app. Leave it out to let anyone frame it |
 
 Set as **Fly secrets** (sensitive, pulled from `.env` by `deploy.sh`):
 

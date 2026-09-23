@@ -43,6 +43,7 @@ class Settings:
     supabase_key: str = ""
     session_secret: str = ""
     cookie_secure: bool = False
+    frame_ancestors: str = ""
     knowledge_dir: Path = REPO_ROOT / "knowledge"
     static_dir: Path = REPO_ROOT / "frontend" / "dist"
 
@@ -50,6 +51,12 @@ class Settings:
     def owner_first_name(self) -> str:
         parts = self.owner_name.split()
         return parts[0] if parts else self.owner_name
+
+    @property
+    def frame_ancestors_policy(self) -> str:
+        """The CSP value for FRAME_ANCESTORS, or "" when framing is left open."""
+        origins = self.frame_ancestors.split()
+        return "frame-ancestors 'self' " + " ".join(origins) if origins else ""
 
     @property
     def effective_session_secret(self) -> str:
@@ -79,6 +86,7 @@ def load_settings(env_file: Path | None = REPO_ROOT / ".env") -> Settings:
         supabase_key=_env("SUPABASE_KEY"),
         session_secret=_env("SESSION_SECRET"),
         cookie_secure=_env("COOKIE_SECURE").lower() in _TRUTHY,
+        frame_ancestors=_env("FRAME_ANCESTORS"),
         knowledge_dir=Path(_env("KNOWLEDGE_DIR") or REPO_ROOT / "knowledge"),
         static_dir=Path(_env("STATIC_DIR") or REPO_ROOT / "frontend" / "dist"),
     )

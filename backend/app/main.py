@@ -414,6 +414,17 @@ def create_app(
 
     app = FastAPI(title="Avatar", lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
     app.add_middleware(BodySizeLimitMiddleware, max_bytes=MAX_BODY_BYTES)
+
+    frame_policy = settings.frame_ancestors_policy
+    if frame_policy:
+        # FRAME_ANCESTORS is set, so only the owner's own site may frame the app.
+        # Unset (the default) leaves framing open - see SPEC "iframe embedding".
+        @app.middleware("http")
+        async def restrict_framing(request: Request, call_next):
+            response = await call_next(request)
+            response.headers["Content-Security-Policy"] = frame_policy
+            return response
+
     app.state.settings = settings
     app.state.knowledge = knowledge
     app.state.agent = agent

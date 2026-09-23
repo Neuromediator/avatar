@@ -207,7 +207,7 @@ def test_head_requests_match_get(tmp_path, repo, fake_stream):
 
 
 def test_pages_can_be_framed(tmp_path, repo, fake_stream):
-    """SPEC (iframe embedding): no X-Frame-Options or frame-blocking CSP."""
+    """SPEC (iframe embedding): with FRAME_ANCESTORS unset, anyone may frame the app."""
     dist = make_dist(tmp_path)
     app = create_app(make_settings(tmp_path, static_dir=dist), repository=repo)
     with TestClient(app) as client:
@@ -215,6 +215,24 @@ def test_pages_can_be_framed(tmp_path, repo, fake_stream):
             headers = client.get(path).headers
             assert "x-frame-options" not in headers, path
             assert "frame-ancestors" not in headers.get("content-security-policy", ""), path
+
+
+def test_frame_ancestors_restricts_framing(tmp_path, repo, fake_stream):
+    """SPEC (iframe embedding): FRAME_ANCESTORS limits framing to the owner's site."""
+    dist = make_dist(tmp_path)
+    settings = make_settings(
+        tmp_path,
+        static_dir=dist,
+        frame_ancestors="https://example.com https://www.example.com",
+    )
+    app = create_app(settings, repository=repo)
+    with TestClient(app) as client:
+        for path in ("/", "/admin", "/api/config", "/assets/app.js"):
+            policy = client.get(path).headers.get("content-security-policy", "")
+            assert policy == (
+                "frame-ancestors 'self' https://example.com https://www.example.com"
+            ), path
+            assert "x-frame-options" not in client.get(path).headers, path
 
 
 def test_no_api_docs_exposed(client):
