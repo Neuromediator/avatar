@@ -57,7 +57,6 @@ type NoticeTag = 'send' | 'history' | 'stream';
 
 const INTERRUPTED_TEXT = 'The connection dropped before the reply finished. It will appear here in a moment.';
 const HISTORY_TEXT = "Couldn't load your earlier messages. They will appear once the connection recovers.";
-const NARROW_QUERY = '(max-width: 640px)';
 
 /** Rough Markdown -> plain text, for screen-reader announcements. */
 function plainText(markdown: string): string {
@@ -129,7 +128,7 @@ export class VisitorChat {
   }
 
   private bindControls(): void {
-    const { nameInput, keepInput, resetButton, themeButton, chips, textarea } = this.els;
+    const { nameInput, keepInput, resetButton, themeButton, chips } = this.els;
 
     // Name / initials (persisted; updates the visitor tokens already shown).
     nameInput.value = VisitorSession.loadName();
@@ -167,19 +166,6 @@ export class VisitorChat {
         else this.composer.focus();
       });
     }
-
-    // Shorter placeholder on phones (the full one wraps).
-    const narrow = typeof matchMedia === 'function' ? matchMedia(NARROW_QUERY) : null;
-    const first = this.cfg.owner_first_name;
-    const setPlaceholder = (): void => {
-      textarea.placeholder = narrow?.matches
-        ? `Message ${first}’s twin…`
-        : `Message ${first}’s twin…  (type “Q2” for an instant answer)`;
-      // Chrome sizes an empty textarea by its placeholder: re-measure.
-      this.composer.autoGrow();
-    };
-    setPlaceholder();
-    narrow?.addEventListener('change', setPlaceholder);
 
     // Catch up as soon as the tab is visible again (background timers are throttled).
     document.addEventListener('visibilitychange', () => {
