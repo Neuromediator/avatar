@@ -93,7 +93,7 @@ def test_fly_kill_timeout_exceeds_the_app_drain(fly):
 
 
 def test_fly_env_holds_no_secrets(fly):
-    assert set(fly["env"]) == {"PORT", "COOKIE_SECURE"}
+    assert set(fly["env"]) == {"PORT", "COOKIE_SECURE", "FRAME_ANCESTORS"}
 
 
 def test_fly_concurrency_counts_connections_for_sse(fly):
