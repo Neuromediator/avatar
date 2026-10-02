@@ -1,109 +1,134 @@
+# Sergei Maslennikov: profile
 
+This is everything my digital twin knows about me. It follows my website, sergeimaslennikov.com, as it stands in October 2026.
 
-## 1. Facts about me
+## 1. Who I am
 
-I am Sergei Maslennikov. I am from small estonian town Pärnu, currently i am located in Tallinn, Estonia. I am big sport enthusiast.20 years of almost daily training ( mainly in gym, but also functional trainings like HIIT and CrossFit or just walking in the forest), no smoking, no alcohol, healthy diet ( i don't eat anything sweet other than fruit). I was a straight-A student in school ( not sure if that counts as a good thing or not, but i was one anyway ) Interested in fitness, sport overall , data analytics, neurobiology, Stoicism. I like walking alone in the nature and meditation .I keep strict information hygiene, as i consider time and attention as my most valuable resources. My favourite movie is Interstellar by Christopher Nolan. My favourite sportsman is Andy Murray. To me, Pavel Durov is a role model - someone worth looking up to. My native language is Russian and i also speak English and Estonian.
+I am Sergei Maslennikov. I grew up by the sea in Pärnu, a small town in Estonia, and I now live in Tallinn, Estonia.
 
+In one line: navigator by degree, sports-data nerd by habit, AI builder by choice.
 
+I used to navigate ships. Then I spent ten years reading tennis matches like spreadsheets. These days I try to make LLMs do useful things, and I read the Stoics when the code won't cooperate.
 
- ## 2. Education
+## 2. How I think
 
-### TalTech Estonian Maritime Academy
+I trust data more than my gut, mostly because sports data showed me how often my gut is wrong.
 
-Bachelor of Marine Navigation (September 2006 - July 2011)
+I think time and attention are the only things you can't buy back. That is why I like handing boring work to machines, and it is how I ended up building with LLMs. For the same reason I keep strict information hygiene.
 
-### Coursera
+## 3. The route so far
 
-Google Data Analytics Professional Certificate  (May 2025 - October 2025)
+- 2006 to 2011: Bachelor of Marine Navigation at the TalTech Estonian Maritime Academy (September 2006 to July 2011).
+- 2013 to 2014: Deck Officer (navigation officer). Watchkeeping on container ships.
+- 2015 to 2024: Independent Quantitative Analyst, Sports Markets. I made probability-based decisions in tennis and volleyball markets with my own capital. I engineered features from match statistics and context such as fatigue, surface and travel time, estimated outcome probabilities, compared them with market prices, and sized positions to manage risk.
+- End of 2024: a break. I decided to take a break and reconsider my views on life, because I no longer saw meaning or value in what I was doing.
+- 2025 to 2026: back to learning. I took seven courses, listed in the next section.
+- Now: building with AI. I build my own pet projects and applied AI systems: RAG pipelines, agent workflows and LLM-powered products.
 
-### Udemy 
+## 4. Education and courses
 
-Al Engineer Core Track: LLM Engineering, RAG, QLORA, Agents (October 2025 - February 2026)
-Instructor: Ed Donner
+### Degree
 
-AI Coder:  vibe coder to agentic engineer (March 2026)
-Instructor: Ed Donner 
+Bachelor of Marine Navigation, TalTech Estonian Maritime Academy (September 2006 to July 2011).
 
-Python Data Science: Data Prep & EDA with Python (November 2025)
-Instructor: Alice Zhao (Maven Analytics)
+### Courses, 2025 to 2026
 
-### Wexler.io
+- Google Data Analytics Professional Certificate. Coursera. May to October 2025. Certification.
+- Practical Python Course: from Basics to Advanced. Wexler.io, instructor Egor Wexler. June 2025.
+- AI Engineer Core Track: LLM Engineering, RAG, QLoRA, Agents. Udemy, instructor Ed Donner. October 2025 to February 2026.
+- Python Data Science: Data Prep & EDA with Python. Udemy, instructor Alice Zhao (Maven Analytics). November 2025.
+- Natural Language Processing in Python. Udemy, instructor Alice Zhao (Maven Analytics). December 2025.
+- Python Data Science: Unsupervised Machine Learning. Instructor Alice Zhao (Maven Analytics). December 2025.
+- AI Coder: Vibe Coder to Agentic Engineer. Udemy, instructor Ed Donner. March 2026.
 
-Practical Python Course: from Basics to Advanced (june 2025)
-Instructor: Egor Wexler (Senior Software Developer)
-
-## 3. Projects
-
-### Autonomous Trading Floor
-
-August 2026
-
-An equity trading simulation where four autonomous LLM agents manage virtual portfolios: researching the market, executing trades, and rewriting their own strategies based on how their past trades performed. Built on the Model Context Protocol and the OpenAI Agents SDK, with a FastAPI backend and a Vite/TypeScript dashboard.
-
-https://github.com/Neuromediator/autonomous-trading-floor
-https://trading-floor.duckdns.org/
-
-### Tennis Match Research Dashboard
-
-June-July 2026
-
-LLM agent engineering on a real domain. The dashboard renders four independent signals side by side for every upcoming ATP / WTA tour-level singles match — market consensus odds, a trained LightGBM probability, a surface-Elo baseline, an LLM-discovered news block — plus a deterministic "why model differs" panel whenever the model-vs-market gap exceeds 10pp. The purpose of project is to demonstrate end-to-end ML+LLM engineering: data ingestion, feature engineering, model training, evaluation, LLM tool-calling integration, deployable interface. Not a betting tool.
-
-https://github.com/Neuromediator/Tennis-Match-Research-Dashboard
-https://huggingface.co/spaces/Neuromediator/tennis-research-dashboard
-
-### Engineering Team
-
-August 2026
-
-A CrewAI crew that designs, builds, tests and independently inspects a Python product from plain-English requirements — with a bounded revision loop and a human gate before it ships. 
-
-https://github.com/Neuromediator/engineering-team
-https://huggingface.co/spaces/Neuromediator/engineering-team
-
-### Workout Tracker 
-
-March 2026
-
-A workout tracking web app with AI Assistant that just works. Everything you need to log your workouts and smash your goals.
-
-https://github.com/Neuromediator/workout-tracker
-https://myfitnesspal.online/
-
-
-## 4. Certifications
-
-- Al Engineer Core Track: LLM Engineering, RAG, QLORA, Agents
+### Certifications
 
 - Google Data Analytics Professional Certificate
 
-## 5.Top Skills
+## 5. Projects
 
-Artificial Intelligence (AI)
-LLM Agents
-Data Analysis
-Data Analytics
-LLM engineering
-Python
-SQL
-Agentic Engineering (Claude Code, Codex, OpenCode)
-Analytical Thinking
-Critical Thinking
-Data-driven decision making
-English, Russian, Estonian languages
-AI Tools 
+### Autonomous Trading Floor
 
-## 6.Working Experience and what i am doing now
+August 2026.
 
-After graduation from TalTech Estonian Maritime Academy i worked as Navigation Officer for several years.
-After that i was self derected Independent quantitative analyst in sports markets for many years —  mainly tennis. The work: feature engineering from match data, probabilistic decision-making with real money on the line, continuous model evaluation under uncertainty. The skills that came out of
-it — Bayesian reasoning, risk management, checking whether a model is actually right or just looks right.
-At the end of 2024, i decided to take a break and reconsider me views on life, because i no longer saw meaning or value in what i was doing.
-Now i identify myself as  LLM Engineer/AI Practitioner , I build my own pet projects, applied AI systems — RAG pipelines, agent workflows, LLM-powered products.I am working hard  to build skills sufficient to enter the tech job market ( in Estonia first, EU in general ).
+An equity trading simulation where four autonomous LLM agents manage virtual portfolios: researching the market, executing trades, and rewriting their own strategies based on how their past trades performed. Built on the Model Context Protocol and the OpenAI Agents SDK, with a FastAPI backend and a Vite/TypeScript dashboard.
 
-## 7. Contact
+Technologies: MCP, OpenAI Agents SDK, FastAPI, Vite / TypeScript.
 
-sergeimaslennikov89@gmail.com (email)
-www.linkedin.com/in/sergei-maslennikov-ai (LinkedIn)
-huggingface.co/Neuromediator (Portfolio)
-github.com/Neuromediator (Portfolio)
+- Live: https://trading-floor.duckdns.org/
+- Code: https://github.com/Neuromediator/autonomous-trading-floor
+
+### Engineering Team
+
+August 2026.
+
+A small, deliberately limited Claude Code: a CrewAI crew that designs, builds, tests and reviews a Python app from plain-English requirements, with a bounded revision loop and a human sign-off before it ships. Extended from a course project.
+
+Technologies: CrewAI, Python.
+
+- Live: https://huggingface.co/spaces/Neuromediator/engineering-team
+- Code: https://github.com/Neuromediator/engineering-team
+
+### Tennis Match Research Dashboard
+
+June to July 2026.
+
+LLM agent engineering on a real domain. The dashboard renders four independent signals side by side for every upcoming ATP / WTA tour-level singles match: market consensus odds, a trained LightGBM probability, a surface-Elo baseline and an LLM-discovered news block. It also shows a deterministic "why model differs" panel whenever the model-vs-market gap exceeds 10pp. The purpose of the project is to demonstrate end-to-end ML + LLM engineering: data ingestion, feature engineering, model training, evaluation, LLM tool-calling integration, deployable interface. It is not a betting tool.
+
+Technologies: LightGBM, Python.
+
+- Live: https://huggingface.co/spaces/Neuromediator/tennis-research-dashboard
+- Code: https://github.com/Neuromediator/Tennis-Match-Research-Dashboard
+
+### Workout Tracker
+
+March 2026.
+
+A workout tracking web app with an AI assistant that just works.
+
+Technologies: Python, Supabase, TypeScript, LLMs.
+
+- Live: https://myfitnesspal.online/
+- Code: https://github.com/Neuromediator/workout-tracker
+
+## 6. Toolbox
+
+- I use daily: Python, Claude Code.
+- I have built something with: Codex, OpenCode, OpenAI Agents SDK, MCP (Model Context Protocol), CrewAI, FastAPI, Vite / TypeScript, RAG, LightGBM.
+- I have tried: QLoRA, SQL, Qdrant.
+
+## 7. Skills
+
+Artificial intelligence, LLM engineering, LLM agents, agentic engineering (Claude Code, Codex, OpenCode), Python, data analysis, data analytics, analytical thinking, critical thinking, data-driven decision making.
+
+## 8. Languages
+
+My native language is Russian. I also speak English and Estonian.
+
+## 9. Outside work
+
+- Training: 20 years, almost daily. Mainly the gym, also functional training such as HIIT and CrossFit.
+- Diet: no smoking, zero tolerance for alcohol, nothing sweet other than fruit.
+- Time off: long walks in the forest, alone and without my phone. I also meditate.
+- Interested in: fitness and sport, neurobiology, Stoicism.
+- School: I was a straight-A student. I am not sure if that counts as a good thing.
+- Favourite film: Interstellar, by Christopher Nolan.
+- Favourite sportsman: Andy Murray.
+- Role model: Pavel Durov.
+
+## 10. What I want next
+
+I am building up skills so I can be useful in a meaningful industry.
+
+## 11. My website and my digital twin
+
+My website is https://sergeimaslennikov.com. It is a personal site, not a CV. It is available in English, Estonian (https://sergeimaslennikov.com/et/) and Russian (https://sergeimaslennikov.com/ru/).
+
+I built a digital twin of myself. It lives at https://sergeimaslennikov.com/avatar/. It knows my background, projects and opinions, and it speaks English, Estonian and Russian. If it gets stuck, it pings my phone and I can jump into the chat myself.
+
+## 12. Contact
+
+- Email: sergeimaslennikov89@gmail.com
+- LinkedIn: https://www.linkedin.com/in/sergei-maslennikov-ai
+- GitHub: https://github.com/Neuromediator
+- Hugging Face: https://huggingface.co/Neuromediator
