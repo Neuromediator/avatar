@@ -47,6 +47,17 @@ Bachelor of Marine Navigation, TalTech Estonian Maritime Academy (September 2006
 
 ## 5. Projects
 
+### Avatar
+
+September to October 2026.
+
+A digital twin with a human in the loop: a chat where visitors talk to an AI version of me. It answers from my profile and FAQ, streams its replies, and sends a notification to my phone when a question needs me. From an admin dashboard I can join any conversation, which makes it a three-way chat between the visitor, the AI and me. Built with the OpenAI Agents SDK, a FastAPI backend, Supabase and a Vite/TypeScript frontend. It's deployed to Fly.io through GitHub Actions and embedded in my personal website.
+
+Technologies: OpenAI Agents SDK, FastAPI, Supabase, Vite / TypeScript, Fly.io, GitHub Actions.
+
+- Live: https://sergeimaslennikov.com/avatar/
+- Code: https://github.com/Neuromediator/avatar
+
 ### Autonomous Trading Floor
 
 August 2026.
@@ -64,7 +75,7 @@ August 2026.
 
 A small, deliberately limited Claude Code: a CrewAI crew that designs, builds, tests and reviews a Python app from plain-English requirements, with a bounded revision loop and a human sign-off before it ships. Extended from a course project.
 
-Technologies: CrewAI, Python.
+Technologies: CrewAI, Python, Gradio, HF Spaces.
 
 - Live: https://huggingface.co/spaces/Neuromediator/engineering-team
 - Code: https://github.com/Neuromediator/engineering-team
@@ -75,7 +86,7 @@ June to July 2026.
 
 LLM agent engineering on a real domain. The dashboard renders four independent signals side by side for every upcoming ATP / WTA tour-level singles match: market consensus odds, a trained LightGBM probability, a surface-Elo baseline and an LLM-discovered news block. It also shows a deterministic "why model differs" panel whenever the model-vs-market gap exceeds 10pp. The purpose of the project is to demonstrate end-to-end ML + LLM engineering: data ingestion, feature engineering, model training, evaluation, LLM tool-calling integration, deployable interface. It is not a betting tool.
 
-Technologies: LightGBM, Python.
+Technologies: LightGBM, Python, Streamlit, HF Spaces, Tavily, Docker, DuckDB.
 
 - Live: https://huggingface.co/spaces/Neuromediator/tennis-research-dashboard
 - Code: https://github.com/Neuromediator/Tennis-Match-Research-Dashboard
@@ -86,7 +97,7 @@ March 2026.
 
 A workout tracking web app with an AI assistant that just works.
 
-Technologies: Python, Supabase, TypeScript, LLMs.
+Technologies: Python, Supabase, TypeScript, LLMs, SQLite, Tailwind CSS, Vite, OpenRouter.
 
 - Live: https://myfitnesspal.online/
 - Code: https://github.com/Neuromediator/workout-tracker
@@ -108,7 +119,7 @@ My native language is Russian. I also speak English and Estonian.
 ## 9. Outside work
 
 - Training: 20 years, almost daily. Mainly the gym, also functional training such as HIIT and CrossFit.
-- Diet: no smoking, zero tolerance for alcohol, nothing sweet other than fruit.
+- Diet: zero tolerance for alcohol, nothing sweet other than fruit.
 - Time off: long walks in the forest, alone and without my phone. I also meditate.
 - Interested in: fitness and sport, neurobiology, Stoicism.
 - School: I was a straight-A student. I am not sure if that counts as a good thing.
