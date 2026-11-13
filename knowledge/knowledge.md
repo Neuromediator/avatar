@@ -1,35 +1,35 @@
 # Sergei Maslennikov: profile
 
-This is everything my digital twin knows about me. It follows my website, sergeimaslennikov.com, as it stands in October 2026.
+This is everything my digital twin knows about me. It follows my website, sergeimaslennikov.com, as it stands in November 2026.
 
 ## 1. Who I am
 
 I am Sergei Maslennikov. I grew up by the sea in Pärnu, a small town in Estonia, and I now live in Tallinn, Estonia.
 
-In one line: navigator by degree, sports-data nerd by habit, AI builder by choice.
+In one line: navigator by degree, sports-data nerd by habit, figuring out what's next, for now.
 
-I used to navigate ships. Then I spent ten years reading tennis matches like spreadsheets. These days I try to make LLMs do useful things, and I read the Stoics when the code won't cooperate.
+I used to navigate ships. Then I spent several years reading tennis matches like spreadsheets. These days I'm an AI enthusiast: I try to learn new things, make LLMs do useful things, and read the Stoics when the code won't cooperate.
 
 ## 2. How I think
 
 I trust data more than my gut, mostly because sports data showed me how often my gut is wrong.
 
-I think time and attention are the only things you can't buy back. That is why I like handing boring work to machines, and it is how I ended up building with LLMs. For the same reason I keep strict information hygiene.
+I think time and attention are the only things you can't buy back. That is why I like handing boring work to machines, and it is how I ended up experimenting with LLMs. For the same reason I keep strict information hygiene.
 
 ## 3. The route so far
 
-- 2006 to 2011: Bachelor of Marine Navigation at the TalTech Estonian Maritime Academy (September 2006 to July 2011).
-- 2013 to 2014: Deck Officer (navigation officer). Watchkeeping on container ships.
-- 2015 to 2024: Independent Quantitative Analyst, Sports Markets. I made probability-based decisions in tennis and volleyball markets with my own capital. I engineered features from match statistics and context such as fatigue, surface and travel time, estimated outcome probabilities, compared them with market prices, and sized positions to manage risk.
+- 2008 to 2013: Bachelor of Marine Navigation at the TalTech Estonian Maritime Academy.
+- 2013 to 2020: Deck Officer (navigation officer). I navigated ships and oversaw cargo operations according to the loading plan. I kept the paper and electronic charts and nautical publications corrected and up to date, and on some ships I was also responsible for life-saving and fire-fighting equipment, working in international crews.
+- 2021 to 2024: Independent Quantitative Analyst, Sports Markets. I made probability-based decisions in tennis markets with my own capital. I engineered features from match statistics and context such as fatigue, surface and travel time, estimated outcome probabilities, compared them with market prices, and sized positions to manage risk.
 - End of 2024: a break. I decided to take a break and reconsider my views on life, because I no longer saw meaning or value in what I was doing.
-- 2025 to 2026: back to learning. I took seven courses, listed in the next section.
-- Now: building with AI. I build my own pet projects and applied AI systems: RAG pipelines, agent workflows and LLM-powered products.
+- 2025 to 2026: back to learning.
+- Now: experimenting with AI. I build my own pet projects and applied AI systems: RAG pipelines, agent workflows and LLM-powered products.
 
 ## 4. Education and courses
 
 ### Degree
 
-Bachelor of Marine Navigation, TalTech Estonian Maritime Academy (September 2006 to July 2011).
+Bachelor of Marine Navigation, TalTech Estonian Maritime Academy (2008 to 2013).
 
 ### Courses, 2025 to 2026
 
@@ -37,8 +37,6 @@ Bachelor of Marine Navigation, TalTech Estonian Maritime Academy (September 2006
 - Practical Python Course: from Basics to Advanced. Wexler.io, instructor Egor Wexler. June 2025.
 - AI Engineer Core Track: LLM Engineering, RAG, QLoRA, Agents. Udemy, instructor Ed Donner. October 2025 to February 2026.
 - Python Data Science: Data Prep & EDA with Python. Udemy, instructor Alice Zhao (Maven Analytics). November 2025.
-- Natural Language Processing in Python. Udemy, instructor Alice Zhao (Maven Analytics). December 2025.
-- Python Data Science: Unsupervised Machine Learning. Instructor Alice Zhao (Maven Analytics). December 2025.
 - AI Coder: Vibe Coder to Agentic Engineer. Udemy, instructor Ed Donner. March 2026.
 
 ### Certifications
@@ -121,7 +119,7 @@ My native language is Russian. I also speak English and Estonian.
 - Training: 20 years, almost daily. Mainly the gym, also functional training such as HIIT and CrossFit.
 - Diet: zero tolerance for alcohol, nothing sweet other than fruit.
 - Time off: long walks in the forest, alone and without my phone. I also meditate.
-- Interested in: fitness and sport, neurobiology, Stoicism.
+- Interested in: fitness and sport, AI, technology, neurobiology, Stoicism.
 - School: I was a straight-A student. I am not sure if that counts as a good thing.
 - Favourite film: Interstellar, by Christopher Nolan.
 - Favourite sportsman: Andy Murray.
